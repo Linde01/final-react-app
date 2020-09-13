@@ -1,49 +1,48 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import ProductList from './ProductList';
 import CreateProduct from './CreateProduct';
 
 const stateClearData = {
-  id: 0,
-  productName: '',
-  category: '',
+  _id: 0,
+  name: '',
+  category: {},
   description: '',
   price: '',
 };
 
 class App extends Component {
   state = {
-    products: [
-      {
-        id: 1,
-        productName: 'Logi Mouse',
-        category: 'Technology',
-        description: 'This is a mouse from Logi',
-        price: 560,
-      },
-      {
-        id: 2,
-        productName: 'Generic keyboard',
-        category: 'Technology',
-        description: 'Generic keyboard',
-        price: 470,
-      },
-    ],
+    products: [],
     form: {
-      id: 0,
-      productName: '',
-      category: '',
+      _id: 0,
+      name: '',
+      category: {},
       description: '',
       price: '',
     },
   };
 
-  onUpdateProduct() {
+  async componentDidMount() {
+    const response = await axios.get('http://localhost:3001/api/products');
+    this.setState({ products: response.data });
+  }
+
+  async onUpdateProduct() {
     const { products: previousProducts, form } = this.state;
+    const productToUpdate = {
+      name: form.name,
+      categoryId: JSON.parse(form.category)._id,
+      price: form.price,
+    };
+    await axios.put(
+      `http://localhost:3001/api/products/${form._id}`,
+      productToUpdate
+    );
     const products = previousProducts.map((product) => {
-      if (product.id === form.id) {
-        product.productName = form.productName;
-        product.category = form.category;
-        product.description = form.description;
+      if (product._id === form._id) {
+        product.name = form.name;
+        product.category = JSON.parse(form.category);
         product.price = form.price;
       }
       return product;
@@ -51,26 +50,32 @@ class App extends Component {
     this.setState({ products, form: { ...stateClearData } });
   }
 
-  onCreateProduct() {
+  async onCreateProduct() {
     const { products, form } = this.state;
-    if (form.id) {
+    if (form._id) {
       this.onUpdateProduct();
       return;
     }
-    const productId = products.length
-      ? products[products.length - 1].id + 1
-      : 1;
-    form.id = productId;
+    const newProduct = {
+      name: form.name,
+      categoryId: JSON.parse(form.category)._id,
+      price: form.price,
+    };
+    const { data } = await axios.post(
+      'http://localhost:3001/api/products',
+      newProduct
+    );
     this.setState({
-      products: [...products, form],
+      products: [...products, data],
       form: { ...stateClearData },
     });
   }
 
-  onDeleteProduct(productId) {
+  async onDeleteProduct(productId) {
     const { products: previousProducts } = this.state;
+    await axios.delete(`http://localhost:3001/api/products/${productId}`);
     const products = previousProducts.filter(
-      (product) => product.id !== productId
+      (product) => product._id !== productId
     );
     this.setState({ products });
   }
@@ -82,8 +87,8 @@ class App extends Component {
   }
 
   onSelectProduct(product) {
-    debugger;
-    this.setState({ form: { ...product } });
+    const category = JSON.stringify(product.category);
+    this.setState({ form: { ...product, category } });
   }
 
   render() {

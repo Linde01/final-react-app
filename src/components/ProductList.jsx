@@ -19,13 +19,13 @@ class ProductList extends Component {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id}>
-                <th scope='row'>{product.id}</th>
+              <tr key={product._id}>
+                <th scope='row'>{product._id}</th>
                 <td onClick={() => this.props.onSelect(product)}>
-                  {product.productName}
+                  {product.name}
                 </td>
                 <td onClick={() => this.props.onSelect(product)}>
-                  {product.category}
+                  {product.category.name}
                 </td>
                 <td onClick={() => this.props.onSelect(product)}>
                   {product.description}
@@ -34,7 +34,7 @@ class ProductList extends Component {
                   {product.price}
                 </td>
                 <td>
-                  <span onClick={() => this.props.onDelete(product.id)}>
+                  <span onClick={() => this.props.onDelete(product._id)}>
                     Delete
                   </span>
                 </td>

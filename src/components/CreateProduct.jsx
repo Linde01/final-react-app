@@ -1,17 +1,24 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+
+const mapper = (data) => {
+  const { description, __v, ...otherProp } = data;
+  return otherProp;
+};
 class CreateProduct extends Component {
+  state = {
+    categories: [],
+  };
+  async componentDidMount() {
+    const response = await axios.get('http://localhost:3001/api/categories');
+    this.setState({ categories: response.data.map(mapper) });
+  }
   onSubmit(event) {
     event.preventDefault();
     this.props.onCreateProduct();
   }
   render() {
-    const {
-      id,
-      productName,
-      category,
-      description,
-      price,
-    } = this.props.product;
+    const { _id, name, category, description, price } = this.props.product;
     return (
       <div>
         <h3>Product</h3>
@@ -19,22 +26,27 @@ class CreateProduct extends Component {
           <div className='form-group'>
             <label>Product Name</label>
             <input
-              name='productName'
+              name='name'
               type='text'
               className='form-control'
-              value={productName}
+              value={name}
               onChange={(event) => this.props.onInputChange(event)}
             />
           </div>
           <div className='form-group'>
             <label>Category</label>
-            <input
+            <select
+              className='custom-select'
               name='category'
-              type='text'
-              className='form-control'
               value={category}
               onChange={(event) => this.props.onInputChange(event)}
-            />
+            >
+              {this.state.categories.map((category) => (
+                <option key={category._id} value={JSON.stringify(category)}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className='form-group'>
             <label>Description</label>
@@ -58,7 +70,7 @@ class CreateProduct extends Component {
           </div>
           <div className='form-group'>
             <button type='submit' className='btn btn-primary'>
-              {id ? 'Update' : 'Add'} Product
+              {_id ? 'Update' : 'Add'} Product
             </button>
           </div>
         </form>
