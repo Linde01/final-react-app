@@ -1,83 +1,84 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import ProductList from './ProductList';
-import CreateProduct from './CreateProduct';
+import InventoryList from './InventoryList';
+import CreateInventory from './CreateInventory';
 
 const stateClearData = {
   _id: 0,
   name: '',
-  category: {},
   description: '',
-  price: '',
+  status: {},
+  deliveryDate: '',
 };
 
 class App extends Component {
   state = {
-    products: [],
+    inventories: [],
     form: {
       _id: 0,
       name: '',
-      category: {},
       description: '',
-      price: '',
+      status: {},
+      deliveryDate: '',
     },
   };
 
   async componentDidMount() {
-    const response = await axios.get('http://localhost:3001/api/products');
-    this.setState({ products: response.data });
+    const response = await axios.get('http://localhost:3001/api/inventories');
+    this.setState({ inventories: response.data });
   }
 
-  async onUpdateProduct() {
-    const { products: previousProducts, form } = this.state;
-    const productToUpdate = {
+  async onUpdateInventory() {
+    const { inventories: previousInventories, form } = this.state;
+    const inventoryToUpdate = {
       name: form.name,
-      categoryId: JSON.parse(form.category)._id,
-      price: form.price,
+      statusId: JSON.parse(form.status)._id,
+      deliveryDate: form.deliveryDate,
     };
     await axios.put(
-      `http://localhost:3001/api/products/${form._id}`,
-      productToUpdate
+      `http://localhost:3001/api/inventories/${form._id}`,
+      inventoryToUpdate
     );
-    const products = previousProducts.map((product) => {
-      if (product._id === form._id) {
-        product.name = form.name;
-        product.category = JSON.parse(form.category);
-        product.price = form.price;
+    const inventories = previousInventories.map((inventory) => {
+      if (inventory._id === form._id) {
+        inventory.name = form.name;
+        inventory.status = JSON.parse(form.status);
+        inventory.deliveryDate = form.deliveryDate;
       }
-      return product;
+      return inventory;
     });
-    this.setState({ products, form: { ...stateClearData } });
+    this.setState({ inventories, form: { ...stateClearData } });
   }
 
-  async onCreateProduct() {
-    const { products, form } = this.state;
+  async onCreateInventory() {
+    const { inventories, form } = this.state;
     if (form._id) {
-      this.onUpdateProduct();
+      this.onUpdateInventory();
       return;
     }
-    const newProduct = {
+    const newInventory = {
       name: form.name,
-      categoryId: JSON.parse(form.category)._id,
-      price: form.price,
+      statusId: JSON.parse(form.status)._id,
+      deliveryDate: form.deliveryDate,
+  
     };
     const { data } = await axios.post(
-      'http://localhost:3001/api/products',
-      newProduct
+      'http://localhost:3001/api/inventories',
+      newInventory
     );
     this.setState({
-      products: [...products, data],
+      inventories: [...inventories, data],
       form: { ...stateClearData },
     });
   }
 
-  async onDeleteProduct(productId) {
-    const { products: previousProducts } = this.state;
-    await axios.delete(`http://localhost:3001/api/products/${productId}`);
-    const products = previousProducts.filter(
-      (product) => product._id !== productId
+  async onDeleteInventory(inventoryId) {
+    const { inventories: previousInventories } = this.state;
+    await axios.delete(`http://localhost:3001/api/inventories/${inventoryId}`);
+    const inventories = previousInventories.filter(
+      (inventory) => inventory._id !== inventoryId
     );
-    this.setState({ products });
+    this.setState({ inventories });
   }
 
   onInputChange(event) {
@@ -86,9 +87,9 @@ class App extends Component {
     this.setState({ form });
   }
 
-  onSelectProduct(product) {
-    const category = JSON.stringify(product.category);
-    this.setState({ form: { ...product, category } });
+  onSelectInventory(inventory) {
+    const status = JSON.stringify(inventory.status);
+    this.setState({ form: { ...inventory, status } });
   }
 
   render() {
@@ -96,17 +97,17 @@ class App extends Component {
       <div className='container'>
         <div className='row'>
           <div className='col-md-4'>
-            <CreateProduct
-              product={this.state.form}
-              onCreateProduct={(product) => this.onCreateProduct(product)}
+            <CreateInventory
+              inventory={this.state.form}
+              onCreateInventory={(inventory) => this.onCreateInventory(inventory)}
               onInputChange={(event) => this.onInputChange(event)}
             />
           </div>
           <div className='col-md-8'>
-            <ProductList
-              products={this.state.products}
-              onDelete={(productId) => this.onDeleteProduct(productId)}
-              onSelect={(product) => this.onSelectProduct(product)}
+            <InventoryList
+              inventories={this.state.inventories}
+              onDelete={(inventoryId) => this.onDeleteInventory(inventoryId)}
+              onSelect={(inventory) => this.onSelectInventory(inventory)}
             />
           </div>
         </div>

@@ -5,26 +5,26 @@ const mapper = (data) => {
   const { description, __v, ...otherProp } = data;
   return otherProp;
 };
-class CreateProduct extends Component {
+class CreateInventory extends Component {
   state = {
-    categories: [],
+    status: [],
   };
   async componentDidMount() {
     const response = await axios.get('http://localhost:3001/api/categories');
-    this.setState({ categories: response.data.map(mapper) });
+    this.setState({ status: response.data.map(mapper) });
   }
   onSubmit(event) {
     event.preventDefault();
-    this.props.onCreateProduct();
+    this.props.onCreateInventory();
   }
   render() {
-    const { _id, name, category, description, price } = this.props.product;
+    const { _id, name, description, status, deliveryDate } = this.props.inventory;
     return (
       <div>
-        <h3>Product</h3>
+        <h3>Inventory</h3>
         <form onSubmit={(event) => this.onSubmit(event)}>
           <div className='form-group'>
-            <label>Product Name</label>
+            <label>Inventory List</label>
             <input
               name='name'
               type='text'
@@ -34,16 +34,16 @@ class CreateProduct extends Component {
             />
           </div>
           <div className='form-group'>
-            <label>Category</label>
+            <label>Status</label>
             <select
               className='custom-select'
-              name='category'
-              value={category}
+              name='status'
+              value={status}
               onChange={(event) => this.props.onInputChange(event)}
             >
-              {this.state.categories.map((category) => (
-                <option key={category._id} value={JSON.stringify(category)}>
-                  {category.name}
+              {this.state.status.map((status) => (
+                <option key={status._id} value={JSON.stringify(status)}>
+                  {status.name}
                 </option>
               ))}
             </select>
@@ -59,18 +59,18 @@ class CreateProduct extends Component {
             ></textarea>
           </div>
           <div className='form-group'>
-            <label>Price</label>
+            <label>delivery date</label>
             <input
-              name='price'
-              type='number'
+              name='deliveryDate'
+              type='time and date'
               className='form-control'
-              value={price}
+              value={deliveryDate}
               onChange={(event) => this.props.onInputChange(event)}
             />
           </div>
           <div className='form-group'>
             <button type='submit' className='btn btn-primary'>
-              {_id ? 'Update' : 'Add'} Product
+              {_id ? 'Update' : 'Add'} Inventory
             </button>
           </div>
         </form>
@@ -79,4 +79,4 @@ class CreateProduct extends Component {
   }
 }
 
-export default CreateProduct;
+export default CreateInventory;
